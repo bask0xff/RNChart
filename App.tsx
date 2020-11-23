@@ -1,7 +1,6 @@
 import React, {Component, useRef, useState} from 'react';
 import {Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Canvas, {CanvasRenderingContext2D} from 'react-native-canvas';
-import moment from 'moment';
 
 export type AppScreenState = {
     started: string;
@@ -148,8 +147,117 @@ export default class App extends Component<AppScreenState> {
 
             ctx.fillStyle = '#6c129c';
             ctx.strokeStyle = "#6c129c";
-            ctx.clearRect(0, 0, _width + offsetX * 2, _height + offsetY * 2);
+            //ctx.clearRect(0, 0, _width + offsetX * 2, _height + offsetY * 2);
+            ctx.fillRect(0, 0, _width + offsetX * 2, _height + offsetY * 2);
             ctx.lineWidth = 1;
+
+            if (this.state.requests) {
+                const data = this.state.requests;
+
+                //find the max value by Y axis
+                let maxVal = 0.0;
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].value > maxVal) maxVal = data[i].value;
+                }
+
+                let numScale = new NiceScale(0, maxVal);
+
+                let yLine = numScale.niceMin;
+                while (yLine <= numScale.niceMax) {
+                    //horizontal line
+                    const y = height - height * (yLine) / numScale.niceMax + frameY1;
+                    ctx.strokeStyle = "#ffbbff";
+                    ctx.beginPath();
+                    ctx.closePath();
+                    ctx.stroke();
+
+                    //value text
+                    if(yLine > 0) {
+                        const valWidth = getNumPxWidth(yLine);
+                        ctx.font = "10px Tahoma";
+                        ctx.fillText(yLine.toString(), offsetX - 5 - valWidth, y + 2);
+                    }
+
+                    yLine += numScale.tickSpacing;
+                }
+
+                //draw axis X: lines
+                for (let i = 0; i < data.length; i++) {
+                    const x = i * (width-20) / (data.length-1) + frameX1;
+                    const y = height - height * data[i].value / numScale.niceMax + frameY1;
+
+                    //vertical line
+                    drawVerticalLine(ctx, x, y, height + frameY1, true);
+
+                    //workaround
+                    ctx.beginPath();
+                    ctx.closePath();
+                }
+
+                //draw chart curve
+                ctx.strokeStyle = "#6c129c";
+                let x = 0;
+                for (let i = 0; i < data.length; i++) {
+                    x = i * (width-20) / (data.length-1) + frameX1;
+                    const y = height - height * data[i].value / numScale.niceMax + frameY1;
+
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+
+                    let fmt = 'DD.MM';
+                    switch (this.state.period) {
+                        case 1:
+                            fmt = 'DD.MM HH:mm';
+                            break;
+                        case 2:
+                            fmt = 'DD.MM';
+                            break;
+                        case 3:
+                            fmt = 'DD.MM';
+                            break;
+                        case 4:
+                            fmt = 'MMM\'YY';
+                            break;
+                        case 5:
+                            fmt = 'YYYY';
+                            break;
+                    }
+                    let val = data[i].date;//  moment(data[i].date).format(fmt);
+                    val = this.localizeMonth(val);
+
+                    //dot on value
+                    ctx.fillRect(x-2,y-2,5,5);
+                    ctx.lineWidth = 1;
+
+                    //dot value
+                    if(data[i].value>0) {
+                        const valWidth = getNumPxWidth(data[i].value);
+                        ctx.font = "10px Tahoma";
+                        let xx = x-valWidth/2;
+                        if(xx <= offsetX) xx = offsetX + 2;
+                        ctx.fillText(data[i].value.toString(), xx, y - 10);
+                    }
+
+                    //axis X value
+                    ctx.font = "10px Tahoma";
+                    ctx.fillText(val, x - 20, +frameY1 + height + 12);
+                }
+                ctx.stroke();
+
+                ctx.strokeStyle = "#6c129c";
+
+                //OY axis - vertical
+                ctx.moveTo(frameX1, frameY1 - 10);
+                ctx.lineTo(frameX1, height + frameY1);
+                ctx.stroke();
+
+                //OX axis - horizontal
+                ctx.moveTo(frameX1, height + frameY1);
+                ctx.lineTo(width + frameX1 + 10, height + frameY1);
+                ctx.stroke();
+
+            }
+
         }
 
     }
@@ -184,9 +292,7 @@ export default class App extends Component<AppScreenState> {
                 amountDays = -1000 * 10;
                 break;
         }
-        let dateFrom = moment(Date.now()).add(amountDays, "d").format("DD.MM.YYYY");
-        let dateTo = moment(Date.now()).add(1, period < 3 ? "d" : "M").format("DD.MM.YYYY");
-        this.setState({period: period, filter_status: status, type: type});
+        this.setState({period: period, type: type});
         while (this.state.requests.length > 0 && this.state.requests[this.state.requests.length - 1].value === 0) {
             this.state.requests.pop();
         }
@@ -195,6 +301,7 @@ export default class App extends Component<AppScreenState> {
             requests: this.state.requests
                 .sort((a: DiagramRequestReq, b: DiagramRequestReq) => a.date > b.date ? 1 : -1)
         });
+
         setTimeout(() => {
             this.drawChart();
         });
@@ -229,6 +336,8 @@ export default class App extends Component<AppScreenState> {
                 {date: "16.11.2020", value: 53},
                 {date: "15.11.2020", value: 19},
             ]});
+
+        this.fetchData(this.state.type, this.state.period);
     }
 
     render() {
@@ -240,7 +349,7 @@ export default class App extends Component<AppScreenState> {
                     alignItems: "center",
                 }}
             >
-                <Text>Simple Chart {this.state.type}</Text>
+                <Text>Simple Chart {this.state.chartWidth}x{this.state.chartHeight}</Text>
                 <View style={{backgroundColor:"#eeeeee", alignContent: "flex-start", width: "100%", height: 300, marginBottom: 16}}>
                     <Canvas ref={this.handleCanvas} />
                 </View>
