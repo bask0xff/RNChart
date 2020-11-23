@@ -1,6 +1,7 @@
 import React, {Component, useRef, useState} from 'react';
 import {Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Canvas, {CanvasRenderingContext2D} from 'react-native-canvas';
+import moment from 'moment';
 
 export type AppScreenState = {
     started: string;
@@ -127,6 +128,32 @@ export default class App extends Component<AppScreenState> {
         chartHeight: Math.round(Dimensions.get('window').width / 2) + 60
     }
 
+    drawChart() {
+        if (!this.state.canvasCtx) return;
+        const ctx: CanvasRenderingContext2D = this.state.canvasCtx;
+        if (ctx) {
+            const _width = this.state.chartWidth;
+            const _height = this.state.chartHeight;
+
+            const offsetX = 40;
+            const offsetY = 0;
+
+            const frameX1 = 50;
+            const frameX2 = _width - 10;
+            const frameY1 = 20;
+            const frameY2 = _height - 15;
+
+            const width = frameX2 - frameX1;
+            const height = frameY2 - frameY1;
+
+            ctx.fillStyle = '#6c129c';
+            ctx.strokeStyle = "#6c129c";
+            ctx.clearRect(0, 0, _width + offsetX * 2, _height + offsetY * 2);
+            ctx.lineWidth = 1;
+        }
+
+    }
+
     handleCanvas = (canvas: any) => {
         if (canvas) {
             canvas.width = this.state.chartWidth;
@@ -134,6 +161,61 @@ export default class App extends Component<AppScreenState> {
 //            this.setState({canvasCtx: canvas.getContext('2d')});
         }
     }
+
+    fetchData(type: number, period: number) {
+        let amountDays = 1;
+        switch (period) {
+            case 1 :
+                amountDays = -1;
+                break;
+            case 2 :
+                amountDays = -7;
+                break;
+            case 3 :
+                amountDays = -30;
+                break;
+            case 4 :
+                amountDays = -92;
+                break;
+            case 5 :
+                amountDays = -365;
+                break;
+            default :
+                amountDays = -1000 * 10;
+                break;
+        }
+        let dateFrom = moment(Date.now()).add(amountDays, "d").format("DD.MM.YYYY");
+        let dateTo = moment(Date.now()).add(1, period < 3 ? "d" : "M").format("DD.MM.YYYY");
+        this.setState({period: period, filter_status: status, type: type});
+        while (this.state.requests.length > 0 && this.state.requests[this.state.requests.length - 1].value === 0) {
+            this.state.requests.pop();
+        }
+
+        this.setState({
+            requests: this.state.requests
+                .sort((a: DiagramRequestReq, b: DiagramRequestReq) => a.date > b.date ? 1 : -1)
+        });
+        setTimeout(() => {
+            this.drawChart();
+        });
+    }
+
+    localizeMonth(date: string) {
+        return date
+            .replace('Jan', 'Янв')
+            .replace('Feb', 'Фев')
+            .replace('Mar', 'Мар')
+            .replace('Apr', 'Апр')
+            .replace('May', 'Май')
+            .replace('Jun', 'Июн')
+            .replace('Jul', 'Июл')
+            .replace('Aug', 'Авг')
+            .replace('Sep', 'Сен')
+            .replace('Oct', 'Окт')
+            .replace('Nov', 'Ноя')
+            .replace('Dec', 'Дек')
+    }
+
 
     componentDidMount(){
         this.setState({type : 1, requests : [
@@ -159,7 +241,7 @@ export default class App extends Component<AppScreenState> {
                 }}
             >
                 <Text>Simple Chart {this.state.type}</Text>
-                <View style={{backgroundColor:"#ffffff", alignContent: "flex-start", width: "100%", height: 300, marginBottom: 16}}>
+                <View style={{backgroundColor:"#eeeeee", alignContent: "flex-start", width: "100%", height: 300, marginBottom: 16}}>
                     <Canvas ref={this.handleCanvas} />
                 </View>
             </View>
