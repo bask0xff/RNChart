@@ -1,6 +1,7 @@
 import React, {Component, useRef, useState} from 'react';
 import {Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Canvas, {CanvasRenderingContext2D} from 'react-native-canvas';
+import * as moment from 'moment';
 
 export type AppScreenState = {
     started: string;
@@ -221,7 +222,7 @@ export default class App extends Component<AppScreenState> {
                             fmt = 'YYYY';
                             break;
                     }
-                    let val = data[i].date;//  moment(data[i].date).format(fmt);
+                    let val = moment(data[i].date).format(fmt);
                     val = this.localizeMonth(val);
 
                     //dot on value
