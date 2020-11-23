@@ -147,8 +147,7 @@ export default class App extends Component<AppScreenState> {
 
             ctx.fillStyle = '#6c129c';
             ctx.strokeStyle = "#6c129c";
-            //ctx.clearRect(0, 0, _width + offsetX * 2, _height + offsetY * 2);
-            ctx.fillRect(0, 0, _width + offsetX * 2, _height + offsetY * 2);
+            ctx.clearRect(0, 0, _width + offsetX * 2, _height + offsetY * 2);
             ctx.lineWidth = 1;
 
             if (this.state.requests) {
@@ -266,7 +265,7 @@ export default class App extends Component<AppScreenState> {
         if (canvas) {
             canvas.width = this.state.chartWidth;
             canvas.height = this.state.chartHeight;
-//            this.setState({canvasCtx: canvas.getContext('2d')});
+            this.setState({canvasCtx: canvas.getContext('2d')});
         }
     }
 
