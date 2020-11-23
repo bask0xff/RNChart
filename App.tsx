@@ -1,5 +1,6 @@
 import React, {Component, useRef, useState} from 'react';
 import {Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import Canvas, {CanvasRenderingContext2D} from 'react-native-canvas';
 
 export type AppScreenState = {
     started: string;
@@ -158,6 +159,9 @@ export default class App extends Component<AppScreenState> {
                 }}
             >
                 <Text>Simple Chart {this.state.type}</Text>
+                <View style={{backgroundColor:"#ffffff", alignContent: "flex-start", width: "100%", height: 300, marginBottom: 16}}>
+                    <Canvas ref={this.handleCanvas} />
+                </View>
             </View>
         );
     }
