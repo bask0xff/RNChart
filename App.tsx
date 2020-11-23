@@ -291,16 +291,12 @@ export default class App extends Component<AppScreenState> {
                 amountDays = -1000 * 10;
                 break;
         }
-        this.setState({period: period, type: type});
-        while (this.state.requests.length > 0 && this.state.requests[this.state.requests.length - 1].value === 0) {
-            this.state.requests.pop();
-        }
-
+/*
         this.setState({
             requests: this.state.requests
                 .sort((a: DiagramRequestReq, b: DiagramRequestReq) => a.date > b.date ? 1 : -1)
         });
-
+*/
         setTimeout(() => {
             this.drawChart();
         });
@@ -322,7 +318,6 @@ export default class App extends Component<AppScreenState> {
             .replace('Dec', 'Дек')
     }
 
-
     componentDidMount(){
         this.setState({type : 1, requests : [
                 {date: "23.11.2020", value: 10},
@@ -332,8 +327,6 @@ export default class App extends Component<AppScreenState> {
                 {date: "19.11.2020", value: 75},
                 {date: "18.11.2020", value: 22},
                 {date: "17.11.2020", value: 47},
-                {date: "16.11.2020", value: 53},
-                {date: "15.11.2020", value: 19},
             ]});
 
         this.fetchData(this.state.type, this.state.period);
@@ -348,7 +341,7 @@ export default class App extends Component<AppScreenState> {
                     alignItems: "center",
                 }}
             >
-                <Text>Simple Chart {this.state.chartWidth}x{this.state.chartHeight}</Text>
+                <Text>Simple Chart {this.state.chartWidth}x{this.state.chartHeight} : {this.state.requests.length}</Text>
                 <View style={{backgroundColor:"#eeeeee", alignContent: "flex-start", width: "100%", height: 300, marginBottom: 16}}>
                     <Canvas ref={this.handleCanvas} />
                 </View>
