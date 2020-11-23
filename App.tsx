@@ -130,8 +130,22 @@ export default class App extends Component<AppScreenState> {
         if (canvas) {
             canvas.width = this.state.chartWidth;
             canvas.height = this.state.chartHeight;
-            this.setState({canvasCtx: canvas.getContext('2d')});
+//            this.setState({canvasCtx: canvas.getContext('2d')});
         }
+    }
+
+    componentDidMount(){
+        this.setState({type : 1, requests : [
+                {date: "23.11.2020", value: 10},
+                {date: "22.11.2020", value: 7},
+                {date: "21.11.2020", value: 2},
+                {date: "20.11.2020", value: 15},
+                {date: "19.11.2020", value: 75},
+                {date: "18.11.2020", value: 22},
+                {date: "17.11.2020", value: 47},
+                {date: "16.11.2020", value: 53},
+                {date: "15.11.2020", value: 19},
+            ]});
     }
 
     render() {
@@ -143,7 +157,7 @@ export default class App extends Component<AppScreenState> {
                     alignItems: "center",
                 }}
             >
-                <Text>Simple Chart</Text>
+                <Text>Simple Chart {this.state.type}</Text>
             </View>
         );
     }
