@@ -1,18 +1,10 @@
 import React, {Component, useRef} from 'react';
 import {Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
-export interface DiagramRequest {
-    type: number;
-    dateFrom: string;//'30.01.2006' (формат)
-    dateTo: string;
-    period: number;
-}
-
 export interface DiagramRequestReq {
     date: string;
     value: number;
 }
-
 
 export interface DiagramRequestItem {
     id: string,
@@ -70,7 +62,7 @@ class NiceScale{
         this.calculate();
     }
 
-    calculate()
+    private calculate()
     {
         this.range = this.niceNum(this.maxPoint - this.minPoint, false);
         this.tickSpacing = this.niceNum(this.range / (this.maxTicks - 1), true);
@@ -80,7 +72,7 @@ class NiceScale{
             Math.ceil(this.maxPoint / this.tickSpacing) * this.tickSpacing;
     }
 
-    niceNum( range: number, round: boolean){
+    private niceNum( range: number, round: boolean){
         let exponent = Math.floor(Math.log10(range));
         let fraction = range / Math.pow(10, exponent);
         let niceFraction = 1.0;
