@@ -1,7 +1,7 @@
 import React, {Component, useRef, useState} from 'react';
 import {Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Canvas, {CanvasRenderingContext2D} from 'react-native-canvas';
-import * as moment from 'moment';
+import moment from 'moment';
 
 export type AppScreenState = {
     started: string;
@@ -152,7 +152,7 @@ export default class App extends Component<AppScreenState> {
             ctx.lineWidth = 1;
 
             if (this.state.requests) {
-                const data = this.state.requests;
+                const data = this.state.requests.sort((a: DiagramRequestReq, b: DiagramRequestReq) => a.date > b.date ? 1 : -1)
 
                 //find the max value by Y axis
                 let maxVal = 0.0;
@@ -204,26 +204,7 @@ export default class App extends Component<AppScreenState> {
                     if (i === 0) ctx.moveTo(x, y);
                     else ctx.lineTo(x, y);
 
-                    let fmt = 'DD.MM';
-                    switch (this.state.period) {
-                        case 1:
-                            fmt = 'DD.MM HH:mm';
-                            break;
-                        case 2:
-                            fmt = 'DD.MM';
-                            break;
-                        case 3:
-                            fmt = 'DD.MM';
-                            break;
-                        case 4:
-                            fmt = 'MMM\'YY';
-                            break;
-                        case 5:
-                            fmt = 'YYYY';
-                            break;
-                    }
-                    let val = moment(data[i].date).format(fmt);
-                    val = this.localizeMonth(val);
+                    let val= moment(data[i].date).format("DD.MM");
 
                     //dot on value
                     ctx.fillRect(x-2,y-2,5,5);
@@ -292,42 +273,21 @@ export default class App extends Component<AppScreenState> {
                 amountDays = -1000 * 10;
                 break;
         }
-/*
-        this.setState({
-            requests: this.state.requests
-                .sort((a: DiagramRequestReq, b: DiagramRequestReq) => a.date > b.date ? 1 : -1)
-        });
-*/
+
         setTimeout(() => {
             this.drawChart();
         });
     }
 
-    localizeMonth(date: string) {
-        return date
-            .replace('Jan', 'Янв')
-            .replace('Feb', 'Фев')
-            .replace('Mar', 'Мар')
-            .replace('Apr', 'Апр')
-            .replace('May', 'Май')
-            .replace('Jun', 'Июн')
-            .replace('Jul', 'Июл')
-            .replace('Aug', 'Авг')
-            .replace('Sep', 'Сен')
-            .replace('Oct', 'Окт')
-            .replace('Nov', 'Ноя')
-            .replace('Dec', 'Дек')
-    }
-
     componentDidMount(){
         this.setState({type : 1, requests : [
-                {date: "23.11.2020", value: 10},
-                {date: "22.11.2020", value: 7},
-                {date: "21.11.2020", value: 2},
-                {date: "20.11.2020", value: 15},
-                {date: "19.11.2020", value: 75},
-                {date: "18.11.2020", value: 22},
-                {date: "17.11.2020", value: 47},
+                {date: "Dec 25,2020", value: 10},
+                {date: "Dec 24,2020", value: 7},
+                {date: "Dec 23,2020", value: 2},
+                {date: "Dec 22,2020", value: 15},
+                {date: "Dec 21,2020", value: 75},
+                {date: "Dec 20,2020", value: 22},
+                {date: "Dec 19,2020", value: 47},
             ]});
 
         this.fetchData(this.state.type, this.state.period);
