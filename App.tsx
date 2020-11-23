@@ -236,7 +236,8 @@ export default class App extends Component<AppScreenState> {
         }
     }
 
-    fetchData() {
+    fetchData(chartNum) {
+        this.setState({ chartId: chartNum});
         setTimeout(() => {
             this.drawChart();
         });
@@ -266,7 +267,7 @@ export default class App extends Component<AppScreenState> {
             ]
         });
 
-        this.fetchData();
+        this.fetchData(this.state.chartId);
     }
 
     render() {
@@ -274,10 +275,30 @@ export default class App extends Component<AppScreenState> {
             <View
                 style={{
                     flex: 1,
-                    justifyContent: "center",
+                    justifyContent: "flex-start",
                     alignItems: "center",
                 }}
             >
+                <View style={[{flex: 2, alignContent: "center", flexDirection: "row"}, {
+                    alignItems: "flex-start", marginTop: 240,
+                }]}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            this.fetchData(0);
+                        }}
+                        style={this.state.chartId === 0 ? viewsStyles.btnEnabled : viewsStyles.btnDisabled}>
+                        <View>
+                            <Text
+                                style={this.state.chartId === 0 ? viewsStyles.btnTextEnabled : viewsStyles.btnTextDisabled}>Chart 1</Text></View></TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            this.fetchData(1);
+                        }}
+                        style={this.state.chartId === 1 ? viewsStyles.btnEnabled : viewsStyles.btnDisabled}>
+                        <View>
+                            <Text
+                                style={this.state.chartId === 1 ? viewsStyles.btnTextEnabled : viewsStyles.btnTextDisabled}>Chart 2, ₽</Text></View></TouchableOpacity>
+                </View>
                 <Text>Simple Chart {this.state.chartWidth}x{this.state.chartHeight} : {this.state.chartId}</Text>
                 <View style={{backgroundColor:"#eeeeee", alignContent: "flex-start", width: "100%", height: 300, marginBottom: 16}}>
                     <Canvas ref={this.handleCanvas} />
@@ -286,3 +307,36 @@ export default class App extends Component<AppScreenState> {
         );
     }
 }
+
+
+const viewsStyles = StyleSheet.create({
+    btnEnabled: {
+        margin: 4,
+        borderColor: '#6C12C9',
+        borderWidth: 1,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        backgroundColor: "#6C129C",
+        borderRadius:4,
+    },
+    btnDisabled: {
+        margin: 4,
+        borderWidth: 1,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        backgroundColor: '#ffffff',
+        borderColor: '#6C12C9',
+        borderRadius:4,
+    },
+    btnTextEnabled: {color: "#ffffff", fontSize: 10},
+    btnTextDisabled: {color: '#6C12C9', fontSize: 10},
+    textEnabled: {
+        marginLeft: 16, color: "#6C12C9", lineHeight: 20, fontStyle: "normal", fontWeight: "bold",
+        fontSize: 16, overflow: "hidden",
+    },
+    textDisabled: {
+        marginLeft: 16, color: "#777777", lineHeight: 20, fontStyle: "normal", fontWeight: "normal",
+        fontSize: 16, overflow: "hidden",
+    }
+
+});
