@@ -4,7 +4,8 @@ import Canvas, {CanvasRenderingContext2D} from 'react-native-canvas';
 import moment from 'moment';
 
 export type AppScreenState = {
-    requests: DiagramRequestReq[],
+    chartId: number,
+    requests: DiagramRequestReq[[]],
     canvasCtx: CanvasRenderingContext2D | null,
     chartWidth: number,
     chartHeight: number,
@@ -105,7 +106,8 @@ class NiceScale{
 
 export default class App extends Component<AppScreenState> {
     state = {
-        requests: [] as DiagramRequestReq[],
+        chartId: 0,
+        requests: [[]] as DiagramRequestReq[[]],
         canvasCtx: null,
         chartWidth: Math.round(Dimensions.get('window').width) * 0.85,
         chartHeight: Math.round(Dimensions.get('window').width / 2) + 60
@@ -135,7 +137,7 @@ export default class App extends Component<AppScreenState> {
             ctx.lineWidth = 1;
 
             if (this.state.requests) {
-                const data = this.state.requests.sort((a: DiagramRequestReq, b: DiagramRequestReq) => a.date > b.date ? 1 : -1)
+                const data = this.state.requests[this.state.chartId].sort((a: DiagramRequestReq, b: DiagramRequestReq) => a.date > b.date ? 1 : -1)
 
                 //find the max value by Y axis
                 let maxVal = 0.0;
@@ -240,16 +242,29 @@ export default class App extends Component<AppScreenState> {
         });
     }
 
-    componentDidMount(){
-        this.setState({ requests : [
-                {date: "Dec 25,2020", value: 10},
-                {date: "Dec 24,2020", value: 7},
-                {date: "Dec 23,2020", value: 2},
-                {date: "Dec 22,2020", value: 15},
-                {date: "Dec 21,2020", value: 75},
-                {date: "Dec 20,2020", value: 22},
-                {date: "Dec 19,2020", value: 47},
-            ]});
+    componentDidMount() {
+        this.setState({ chartId: 1,
+            requests: [
+                [
+                    {date: "Dec 25,2020", value: 10},
+                    {date: "Dec 24,2020", value: 7},
+                    {date: "Dec 23,2020", value: 2},
+                    {date: "Dec 22,2020", value: 15},
+                    {date: "Dec 21,2020", value: 75},
+                    {date: "Dec 20,2020", value: 22},
+                    {date: "Dec 19,2020", value: 47},
+                ],
+                [
+                    {date: "Dec 25,2020", value: 7654},
+                    {date: "Dec 24,2020", value: 98788},
+                    {date: "Dec 23,2020", value: 56454},
+                    {date: "Dec 22,2020", value: 58658},
+                    {date: "Dec 21,2020", value: 22123},
+                    {date: "Dec 20,2020", value: 2345},
+                    {date: "Dec 19,2020", value: 335},
+                ],
+            ]
+        });
 
         this.fetchData();
     }
@@ -263,7 +278,7 @@ export default class App extends Component<AppScreenState> {
                     alignItems: "center",
                 }}
             >
-                <Text>Simple Chart {this.state.chartWidth}x{this.state.chartHeight} : {this.state.requests.length}</Text>
+                <Text>Simple Chart {this.state.chartWidth}x{this.state.chartHeight} : {this.state.chartId}</Text>
                 <View style={{backgroundColor:"#eeeeee", alignContent: "flex-start", width: "100%", height: 300, marginBottom: 16}}>
                     <Canvas ref={this.handleCanvas} />
                 </View>
