@@ -1,5 +1,16 @@
-import React, {Component, useRef} from 'react';
+import React, {Component, useRef, useState} from 'react';
 import {Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+
+export type AppScreenState = {
+    started: string;
+    type: number;
+    period: number;
+    requests: DiagramRequestReq[],
+    slider: number;
+    canvasCtx: CanvasRenderingContext2D | null,
+    chartWidth: number,
+    chartHeight: number,
+}
 
 export interface DiagramRequestReq {
     date: string;
@@ -10,7 +21,6 @@ export interface DiagramRequestItem {
     id: string,
     data: DiagramRequestReq,
     selected: boolean,
-
 }
 
 function getNumPxWidth(value: number) {
@@ -22,7 +32,6 @@ function getNumPxWidth(value: number) {
     }
     return signs*5;
 }
-
 
 function drawVerticalLine(ctx: CanvasRenderingContext2D, x: number, y1: number, y2: number, isDashed: boolean) {
     if(isDashed) {
@@ -104,7 +113,7 @@ class NiceScale{
     }
 }
 
-export default class App extends Component<{}> {
+export default class App extends Component<AppScreenState> {
     state = {
         started: "01.01.2020",
         type: 1,
@@ -115,6 +124,14 @@ export default class App extends Component<{}> {
         canvasCtx: null,
         chartWidth: Math.round(Dimensions.get('window').width) * 0.85,
         chartHeight: Math.round(Dimensions.get('window').width / 2) + 60
+    }
+
+    handleCanvas = (canvas: any) => {
+        if (canvas) {
+            canvas.width = this.state.chartWidth;
+            canvas.height = this.state.chartHeight;
+            this.setState({canvasCtx: canvas.getContext('2d')});
+        }
     }
 
     render() {
