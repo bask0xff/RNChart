@@ -4,11 +4,7 @@ import Canvas, {CanvasRenderingContext2D} from 'react-native-canvas';
 import moment from 'moment';
 
 export type AppScreenState = {
-    started: string;
-    type: number;
-    period: number;
     requests: DiagramRequestReq[],
-    slider: number;
     canvasCtx: CanvasRenderingContext2D | null,
     chartWidth: number,
     chartHeight: number,
@@ -17,12 +13,6 @@ export type AppScreenState = {
 export interface DiagramRequestReq {
     date: string;
     value: number;
-}
-
-export interface DiagramRequestItem {
-    id: string,
-    data: DiagramRequestReq,
-    selected: boolean,
 }
 
 function getNumPxWidth(value: number) {
@@ -40,10 +30,8 @@ function drawVerticalLine(ctx: CanvasRenderingContext2D, x: number, y1: number, 
         let y = y1;
         while (y < y2 - 3) {
             ctx.strokeStyle = "#ffbbff";
-            //ctx.beginPath();
             ctx.moveTo(x, y);
             ctx.lineTo(x, y + 3);
-            //ctx.closePath();
             ctx.stroke();
             y += 6;
         }
@@ -117,12 +105,7 @@ class NiceScale{
 
 export default class App extends Component<AppScreenState> {
     state = {
-        started: "01.01.2020",
-        type: 1,
-        period: 2,
         requests: [] as DiagramRequestReq[],
-        slider: 10,
-        oldPeriod: 0,
         canvasCtx: null,
         chartWidth: Math.round(Dimensions.get('window').width) * 0.85,
         chartHeight: Math.round(Dimensions.get('window').width / 2) + 60
@@ -251,36 +234,14 @@ export default class App extends Component<AppScreenState> {
         }
     }
 
-    fetchData(type: number, period: number) {
-        let amountDays = 1;
-        switch (period) {
-            case 1 :
-                amountDays = -1;
-                break;
-            case 2 :
-                amountDays = -7;
-                break;
-            case 3 :
-                amountDays = -30;
-                break;
-            case 4 :
-                amountDays = -92;
-                break;
-            case 5 :
-                amountDays = -365;
-                break;
-            default :
-                amountDays = -1000 * 10;
-                break;
-        }
-
+    fetchData() {
         setTimeout(() => {
             this.drawChart();
         });
     }
 
     componentDidMount(){
-        this.setState({type : 1, requests : [
+        this.setState({ requests : [
                 {date: "Dec 25,2020", value: 10},
                 {date: "Dec 24,2020", value: 7},
                 {date: "Dec 23,2020", value: 2},
@@ -290,7 +251,7 @@ export default class App extends Component<AppScreenState> {
                 {date: "Dec 19,2020", value: 47},
             ]});
 
-        this.fetchData(this.state.type, this.state.period);
+        this.fetchData();
     }
 
     render() {
