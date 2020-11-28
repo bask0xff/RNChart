@@ -33,16 +33,14 @@ function drawVerticalLine(ctx: CanvasRenderingContext2D, x: number, y1: number, 
             ctx.strokeStyle = "#ffbbff";
             ctx.moveTo(x, y);
             ctx.lineTo(x, y + 3);
-            ctx.stroke();
             y += 6;
         }
+        ctx.stroke();
     }
     else {
-        ctx.strokeStyle = "#ffbbff";
-        ctx.beginPath();
+        ctx.strokeStyle = "#fce3fc";
         ctx.moveTo(x, y1);
         ctx.lineTo(x, y2);
-        ctx.closePath();
         ctx.stroke();
     }
 }
@@ -55,6 +53,7 @@ class NiceScale{
     range: number = 1.0;
     niceMin: number = 1.0;
     niceMax: number = 1.0;
+    exponent: number = 0;
 
     constructor(min: number, max:number) {
         this.minPoint = min;
@@ -99,9 +98,33 @@ class NiceScale{
                 niceFraction = 10;
         }
 
+        this.exponent = exponent;
+        console.log(exponent);
         return niceFraction * Math.pow(10, exponent);
 
     }
+}
+
+function roundFloat(x: number, exp: number){
+    console.log("roundFloat: ", x);
+    if(exp>0) return x;
+    return x;
+
+    let xx = x;
+    exp = -exp ;
+    console.log("exp:", exp);
+
+    for(let i=0; i<exp; i++){
+        xx*=10;
+    }
+    console.log(xx);
+    xx = Math.floor(xx);
+    console.log(xx);
+    let zeros = "";
+    for(let j=0; j<exp-2; j++){
+        zeros += "0";
+    }
+    return "0." + zeros + xx;
 }
 
 export default class App extends Component<AppScreenState> {
@@ -136,6 +159,8 @@ export default class App extends Component<AppScreenState> {
             ctx.clearRect(0, 0, _width + offsetX * 2, _height + offsetY * 2);
             ctx.lineWidth = 1;
 
+            ctx.strokeRect(0, 0, _width, _height);
+
             if (this.state.requests) {
                 const data = this.state.requests[this.state.chartId].sort((a: DiagramRequestReq, b: DiagramRequestReq) => a.date > b.date ? 1 : -1)
 
@@ -158,9 +183,10 @@ export default class App extends Component<AppScreenState> {
 
                     //value text
                     if(yLine > 0) {
-                        const valWidth = getNumPxWidth(yLine);
+                        let yText = roundFloat(yLine, numScale.exponent);
+                        const valWidth = getNumPxWidth(yText);
                         ctx.font = "10px Tahoma";
-                        ctx.fillText(yLine.toString(), offsetX - 5 - valWidth, y + 2);
+                        ctx.fillText(yText.toString(), offsetX - 5 - valWidth, y + 2);
                     }
 
                     yLine += numScale.tickSpacing;
@@ -172,7 +198,7 @@ export default class App extends Component<AppScreenState> {
                     const y = height - height * data[i].value / numScale.niceMax + frameY1;
 
                     //vertical line
-                    drawVerticalLine(ctx, x, y, height + frameY1, true);
+                    drawVerticalLine(ctx, x, y, height + frameY1, false);
 
                     //workaround
                     ctx.beginPath();
@@ -237,14 +263,7 @@ export default class App extends Component<AppScreenState> {
     }
 
     fetchData(chartNum) {
-        this.setState({ chartId: chartNum});
-        setTimeout(() => {
-            this.drawChart();
-        });
-    }
-
-    componentDidMount() {
-        this.setState({ chartId: 1,
+        this.setState({ chartId: chartNum,
             requests: [
                 [
                     {date: "Dec 25,2020", value: 10},
@@ -254,6 +273,15 @@ export default class App extends Component<AppScreenState> {
                     {date: "Dec 21,2020", value: 75},
                     {date: "Dec 20,2020", value: 22},
                     {date: "Dec 19,2020", value: 47},
+                ],
+                [
+                    {date: "Dec 25,2020", value: Math.random()*0.02},
+                    {date: "Nov 24,2020", value: Math.random()*0.02},
+                    {date: "Oct 23,2020", value: Math.random()*0.02},
+                    {date: "Sep 22,2020", value: Math.random()*0.02},
+                    {date: "Aug 21,2020", value: Math.random()*0.02},
+                    {date: "Jul 20,2020", value: Math.random()*0.02},
+                    {date: "Jun 19,2020", value: Math.random()*0.02},
                 ],
                 [
                     {date: "Dec 25,2020", value: 7654},
@@ -267,7 +295,20 @@ export default class App extends Component<AppScreenState> {
             ]
         });
 
-        this.fetchData(this.state.chartId);
+        setTimeout(() => {
+            this.drawChart();
+        });
+    }
+
+    componentDidMount() {
+        this.setState({ chartId: 1 });
+
+        setTimeout(() => {
+
+                this.fetchData(this.state.chartId);
+
+        }, 100);
+
     }
 
     render() {
@@ -297,7 +338,15 @@ export default class App extends Component<AppScreenState> {
                         style={this.state.chartId === 1 ? viewsStyles.btnEnabled : viewsStyles.btnDisabled}>
                         <View>
                             <Text
-                                style={this.state.chartId === 1 ? viewsStyles.btnTextEnabled : viewsStyles.btnTextDisabled}>Chart 2, ₽</Text></View></TouchableOpacity>
+                                style={this.state.chartId === 1 ? viewsStyles.btnTextEnabled : viewsStyles.btnTextDisabled}>Chart 2</Text></View></TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            this.fetchData(2);
+                        }}
+                        style={this.state.chartId === 2 ? viewsStyles.btnEnabled : viewsStyles.btnDisabled}>
+                        <View>
+                            <Text
+                                style={this.state.chartId === 2 ? viewsStyles.btnTextEnabled : viewsStyles.btnTextDisabled}>Chart 3, ₽</Text></View></TouchableOpacity>
                 </View>
                 <Text>Simple Chart {this.state.chartWidth}x{this.state.chartHeight} : {this.state.chartId}</Text>
                 <View style={{backgroundColor:"#eeeeee", alignContent: "flex-start", width: "100%", height: 300, marginBottom: 16}}>
