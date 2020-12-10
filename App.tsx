@@ -127,8 +127,6 @@ function roundFloat(x: number, exp: number){
     return "0." + zeros + xx;
 }
 
-//let svg=document.documentElement /*svg object*/
-let S = new Array<Path>(); /*splines*/
 let V = new Array<Path>(); /*vertices*/
 let C 	/*current object*/
 let x0,y0	/*svg offset*/
@@ -136,38 +134,22 @@ let x0,y0	/*svg offset*/
 /*saves elements as global variables*/
 function init()
 {
-    /*create splines*/
-    S.push(createPath("blue",1));
-    S.push(createPath("red",1));
-    S.push(createPath("green",1));
-    S.push(createPath("brown",1));
-
     /*create control points*/
     V.push(createKnot(60,60));
     V.push(createKnot(220,300));
     V.push(createKnot(420,300));
     V.push(createKnot(700,240));
 
-    console.log("Path", S);
-    console.log("Knot", V);
-
-    updateSplines();
+    updateSplines(V);
 }
 
 /*creates and adds an SVG circle to represent knots*/
 function createKnot(x,y):Path
 {
-    var C = new Path(); //document.createElementNS("http://www.w3.org/2000/svg","circle")
-    C.setAttributeNS("r",22)
+    var C = new Path();
     C.setAttributeNS("cx",x)
     C.setAttributeNS("cy",y)
-    C.setAttributeNS("fill","gold")
-    C.setAttributeNS("stroke","black")
-    C.setAttributeNS("stroke-width","6")
-    C.setAttributeNS("onmousedown","startMove(evt)")
-    //svg.appendChild(C)
     return C
-
 }
 
 interface Dictionary<T> {
@@ -186,56 +168,12 @@ class Path {
     }
 }
 
-/*creates and adds an SVG path without defining the nodes*/
-function createPath(color,width)
-{
-    width = (typeof width == 'undefined' ? "8" : width);
-    var P = new Path(); // document.createElementNS("http://www.w3.org/2000/svg","path")
-    P.setAttributeNS("fill","none")
-    P.setAttributeNS("stroke",color)
-    P.setAttributeNS("stroke-width",width)
-    //svg.appendChild(P)
-    return P
-}
-
-/*from http://www.w3.org/Graphics/SVG/IG/resources/svgprimer.html*/
-function startMove(evt)
-{
-    /*SVG positions are relative to the element but mouse
-      positions are relative to the window, get offset*/
-    //x0 = getOffset(svg).left;
-    //y0 = getOffset(svg).top;
-
-    C=evt.target
-    //svg.setAttribute("onmousemove","move(evt)")
-    //svg.setAttribute("onmouseup","drop()")
-}
-
-/*called on mouse move, updates dragged circle and recomputes splines*/
-function move(evt)
-{
-    let x = evt.clientX-x0;
-    let y = evt.clientY-y0;
-
-    /*move the current handle*/
-    C.setAttributeNS(null,"cx",x)
-    C.setAttributeNS(null,"cy",y)
-    updateSplines();
-}
-
-/*called on mouse up event*/
-function drop()
-{
-    //svg = document.getElementsByTagName('svg')[0];
-    //svg.setAttributeNS(null, "onmousemove",null)
-}
-
 /*computes spline control points*/
-function updateSplines() {
+function updateSplines(V) {
     /*grab (x,y) coordinates of the control points*/
     let x = new Array();
     let y = new Array();
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < V.length; i++) {
         /*use parseInt to convert string to int*/
         x[i] = (V[i].getAttributeNS( "cx"))
         y[i] = (V[i].getAttributeNS( "cy"))
@@ -246,13 +184,12 @@ function updateSplines() {
     let py = computeControlPoints(y);
 
     /*updates path settings, the browser will draw the new spline*/
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < x.length-1; i++) {
         let p = path(x[i],y[i],px.p1[i],py.p1[i],px.p2[i],py.p2[i],x[i+1],y[i+1]);
-        console.log("p:", p);
-        S[i].setAttributeNS("d", p);
+        console.log("draw Bezier curve:", p);
     }
 
-    console.log("S:", S)
+    //console.log("S:", S)
 }
 
 /*creates formated path string for SVG cubic path element*/
@@ -388,9 +325,6 @@ export default class App extends Component<AppScreenState> {
                     //horizontal line
                     const y = height - height * (yLine) / numScale.niceMax + frameY1;
                     ctx.strokeStyle = "#ffbbff";
-                    ctx.beginPath();
-                    ctx.closePath();
-                    ctx.stroke();
 
                     //value text
                     if(yLine > 0) {
