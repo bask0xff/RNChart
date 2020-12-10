@@ -148,6 +148,9 @@ function init()
     V.push(createKnot(420,300));
     V.push(createKnot(700,240));
 
+    console.log(S);
+    console.log(V);
+
     updateSplines();
 }
 
@@ -155,25 +158,31 @@ function init()
 function createKnot(x,y):Path
 {
     var C = new Path(); //document.createElementNS("http://www.w3.org/2000/svg","circle")
-    C.setAttributeNS(null,"r",22)
-    C.setAttributeNS(null,"cx",x)
-    C.setAttributeNS(null,"cy",y)
-    C.setAttributeNS(null,"fill","gold")
-    C.setAttributeNS(null,"stroke","black")
-    C.setAttributeNS(null,"stroke-width","6")
-    C.setAttributeNS(null,"onmousedown","startMove(evt)")
+    C.setAttributeNS("r",22)
+    C.setAttributeNS("cx",x)
+    C.setAttributeNS("cy",y)
+    C.setAttributeNS("fill","gold")
+    C.setAttributeNS("stroke","black")
+    C.setAttributeNS("stroke-width","6")
+    C.setAttributeNS("onmousedown","startMove(evt)")
     //svg.appendChild(C)
     return C
 
 }
 
+interface Dictionary<T> {
+    [Key: string]: T;
+}
+
 class Path {
+    attributes: Dictionary<string | number> = {};
+
     static setAttributeNS(name: string, value: string) {
 
     }
 
-    setAttributeNS(name, value: string, number: number) {
-
+    setAttributeNS(name: string, value: string | number) {
+        this.attributes[name] = value;
     }
 
     getAttributeNS(param, cx: string) {
