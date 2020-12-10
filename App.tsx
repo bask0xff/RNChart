@@ -148,8 +148,8 @@ function init()
     V.push(createKnot(420,300));
     V.push(createKnot(700,240));
 
-    console.log(S);
-    console.log(V);
+    console.log("Path", S);
+    console.log("Knot", V);
 
     updateSplines();
 }
@@ -177,16 +177,12 @@ interface Dictionary<T> {
 class Path {
     attributes: Dictionary<string | number> = {};
 
-    static setAttributeNS(name: string, value: string) {
-
-    }
-
     setAttributeNS(name: string, value: string | number) {
         this.attributes[name] = value;
     }
 
-    getAttributeNS(param, cx: string) {
-        return "";
+    getAttributeNS(name: string) {
+        return this.attributes[name];
     }
 }
 
@@ -194,7 +190,7 @@ class Path {
 function createPath(color,width)
 {
     width = (typeof width == 'undefined' ? "8" : width);
-    var P = Path; // document.createElementNS("http://www.w3.org/2000/svg","path")
+    var P = new Path(); // document.createElementNS("http://www.w3.org/2000/svg","path")
     P.setAttributeNS("fill","none")
     P.setAttributeNS("stroke",color)
     P.setAttributeNS("stroke-width",width)
@@ -235,16 +231,14 @@ function drop()
 }
 
 /*computes spline control points*/
-function updateSplines()
-{
+function updateSplines() {
     /*grab (x,y) coordinates of the control points*/
-    let x=new Array();
-    let y=new Array();
-    for (let i=0;i<4;i++)
-    {
+    let x = new Array();
+    let y = new Array();
+    for (let i = 0; i < 4; i++) {
         /*use parseInt to convert string to int*/
-        x[i]=parseInt(V[i].getAttributeNS(null,"cx"))
-        y[i]=parseInt(V[i].getAttributeNS(null,"cy"))
+        x[i] = (V[i].getAttributeNS( "cx"))
+        y[i] = (V[i].getAttributeNS( "cy"))
     }
 
     /*computes control points p1 and p2 for x and y direction*/
@@ -252,15 +246,26 @@ function updateSplines()
     let py = computeControlPoints(y);
 
     /*updates path settings, the browser will draw the new spline*/
-    for (let i=0;i<3;i++)
-        S[i].setAttributeNS(null,"d",
-            path(x[i],y[i],px.p1[i],py.p1[i],px.p2[i],py.p2[i],x[i+1],y[i+1]));
+    for (let i = 0; i < 3; i++) {
+        let p = path(x[i],y[i],px.p1[i],py.p1[i],px.p2[i],py.p2[i],x[i+1],y[i+1]);
+        console.log("p:", p);
+        S[i].setAttributeNS("d", p);
+    }
+
+    console.log("S:", S)
 }
 
 /*creates formated path string for SVG cubic path element*/
 function path(x1,y1,px1,py1,px2,py2,x2,y2)
 {
     return "M "+x1+" "+y1+" C "+px1+" "+py1+" "+px2+" "+py2+" "+x2+" "+y2;
+    /*
+    // Cubic Bézier curve
+ctx.beginPath();
+ctx.moveTo(x1, y1);
+ctx.bezierCurveTo(px1, py1, px2, py2, x2, y2);
+ctx.stroke();
+    * */
 }
 
 /*computes control points given knots K, this is the brain of the operation*/
