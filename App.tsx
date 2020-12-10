@@ -140,7 +140,7 @@ function init()
     V.push(createKnot(420,300));
     V.push(createKnot(700,240));
 
-    updateSplines(V);
+    //updateSplines(V);
 }
 
 /*creates and adds an SVG circle to represent knots*/
@@ -169,7 +169,7 @@ class Path {
 }
 
 /*computes spline control points*/
-function updateSplines(V) {
+function updateSplines(ctx:CanvasRenderingContext2D, V) {
     /*grab (x,y) coordinates of the control points*/
     let x = new Array();
     let y = new Array();
@@ -187,6 +187,12 @@ function updateSplines(V) {
     for (let i = 0; i < x.length-1; i++) {
         let p = path(x[i],y[i],px.p1[i],py.p1[i],px.p2[i],py.p2[i],x[i+1],y[i+1]);
         console.log("draw Bezier curve:", p);
+        //Cubic Bézier curve
+        ctx.beginPath();
+        ctx.moveTo(x[i], y[i]);
+        ctx.bezierCurveTo(px.p1[i],py.p1[i],px.p2[i],py.p2[i],x[i+1],y[i+1]);
+        ctx.stroke();
+
     }
 
     //console.log("S:", S)
@@ -196,13 +202,6 @@ function updateSplines(V) {
 function path(x1,y1,px1,py1,px2,py2,x2,y2)
 {
     return "M "+x1+" "+y1+" C "+px1+" "+py1+" "+px2+" "+py2+" "+x2+" "+y2;
-    /*
-    // Cubic Bézier curve
-ctx.beginPath();
-ctx.moveTo(x1, y1);
-ctx.bezierCurveTo(px1, py1, px2, py2, x2, y2);
-ctx.stroke();
-    * */
 }
 
 /*computes control points given knots K, this is the brain of the operation*/
@@ -284,7 +283,7 @@ export default class App extends Component<AppScreenState> {
     }
 
     drawChart() {
-        init();
+        //init();
         if (!this.state.canvasCtx) return;
         const ctx: CanvasRenderingContext2D = this.state.canvasCtx;
         if (ctx) {
@@ -350,6 +349,7 @@ export default class App extends Component<AppScreenState> {
                     ctx.closePath();
                 }
 
+                var P = new Array<Path>();
                 //draw chart curve
                 ctx.strokeStyle = "#6c129c";
                 let x = 0;
@@ -357,8 +357,12 @@ export default class App extends Component<AppScreenState> {
                     x = i * (width-20) / (data.length-1) + frameX1;
                     const y = height - height * data[i].value / numScale.niceMax + frameY1;
 
-                    if (i === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
+                    P.push(createKnot(x,y));
+
+                    if(false) {
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
 
                     let val= moment(data[i].date).format("DD.MM");
 
@@ -382,6 +386,9 @@ export default class App extends Component<AppScreenState> {
                 ctx.stroke();
 
                 ctx.strokeStyle = "#6c129c";
+
+                console.log(P);
+                updateSplines(ctx, P);
 
                 //OY axis - vertical
                 ctx.moveTo(frameX1, frameY1 - 10);
