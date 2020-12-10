@@ -418,13 +418,13 @@ export default class App extends Component<AppScreenState> {
         this.setState({ chartId: chartNum,
             requests: [
                 [
-                    {date: "Dec 25,2020", value: 10},
-                    {date: "Dec 24,2020", value: 7},
-                    {date: "Dec 23,2020", value: 2},
-                    {date: "Dec 22,2020", value: 15},
-                    {date: "Dec 21,2020", value: 75},
-                    {date: "Dec 20,2020", value: 22},
-                    {date: "Dec 19,2020", value: 47},
+                    {date: "Dec 25,2020", value: Math.floor(Math.random()*100)},
+                    {date: "Dec 24,2020", value: Math.floor(Math.random()*100)},
+                    {date: "Dec 23,2020", value: Math.floor(Math.random()*100)},
+                    {date: "Dec 22,2020", value: Math.floor(Math.random()*100)},
+                    {date: "Dec 21,2020", value: Math.floor(Math.random()*100)},
+                    {date: "Dec 20,2020", value: Math.floor(Math.random()*100)},
+                    {date: "Dec 19,2020", value: Math.floor(Math.random()*100)},
                 ],
                 [
                     {date: "Dec 25,2020", value: Math.random()*0.02},
@@ -436,13 +436,13 @@ export default class App extends Component<AppScreenState> {
                     {date: "Jun 19,2020", value: Math.random()*0.02},
                 ],
                 [
-                    {date: "Dec 25,2020", value: 7654},
-                    {date: "Dec 24,2020", value: 98788},
-                    {date: "Dec 23,2020", value: 56454},
-                    {date: "Dec 22,2020", value: 58658},
-                    {date: "Dec 21,2020", value: 22123},
-                    {date: "Dec 20,2020", value: 2345},
-                    {date: "Dec 19,2020", value: 335},
+                    {date: "Dec 25,2020", value: Math.floor(Math.random()*100000)},
+                    {date: "Dec 24,2020", value: Math.floor(Math.random()*100000)},
+                    {date: "Dec 23,2020", value: Math.floor(Math.random()*100000)},
+                    {date: "Dec 22,2020", value: Math.floor(Math.random()*100000)},
+                    {date: "Dec 21,2020", value: Math.floor(Math.random()*100000)},
+                    {date: "Dec 20,2020", value: Math.floor(Math.random()*100000)},
+                    {date: "Dec 19,2020", value: Math.floor(Math.random()*100000)},
                 ],
             ]
         });
