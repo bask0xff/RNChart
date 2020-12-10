@@ -192,7 +192,6 @@ function updateSplines(ctx:CanvasRenderingContext2D, V) {
         ctx.moveTo(x[i], y[i]);
         ctx.bezierCurveTo(px.p1[i],py.p1[i],px.p2[i],py.p2[i],x[i+1],y[i+1]);
         ctx.stroke();
-
     }
 
     //console.log("S:", S)
@@ -385,10 +384,13 @@ export default class App extends Component<AppScreenState> {
                 }
                 ctx.stroke();
 
-                ctx.strokeStyle = "#6c129c";
-
                 console.log(P);
                 updateSplines(ctx, P);
+
+                ctx.beginPath();
+                ctx.closePath();
+
+                ctx.strokeStyle = "#6c129c";
 
                 //OY axis - vertical
                 ctx.moveTo(frameX1, frameY1 - 10);
